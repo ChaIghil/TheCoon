@@ -1,0 +1,163 @@
+from random import *
+
+J = 11
+Q = 12
+K = 13
+A = 14
+
+deck = [A, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K] * 4
+shuffle(deck)
+
+def flop():
+    cards = []
+    while len(cards) < 3:
+        cards.append(deck.pop(0))
+    return (cards)
+
+
+def cards():
+    p_cards = []
+    d_cards = []
+    while len(p_cards) < 2 and len(d_cards) < 2:
+        p_cards.append(deck.pop(0))
+        d_cards.append(deck.pop(0))
+    return p_cards, d_cards
+
+
+def compare_high(list1, list2):
+    lst = list1 + list2
+    return max(lst)
+
+
+def compare_pairs(list1, list2):
+    if list2.count(list2[0]) == 2:
+        intersection = list2
+        return intersection
+    else:
+        intersection = [x for x in list2 if x in list1]
+        if len(intersection) != 0:
+            return intersection
+        else:
+            return compare_high(list1, list2)
+
+
+def results(list1, list2):
+    x = compare_pairs(list1, list2)
+    if type(x) == list:
+        if len(x) == 2 and x.count(x[0]) == 2:
+            print ("three of a kind:", x + [x[0]])
+        elif len(x) == 2:
+            print ("double pair:", compare_pairs(list1, list2))
+        elif len(compare_pairs(list1, list2)) == 1:
+            print ("simple pair", compare_pairs(list1, list2))
+    else:
+        print (compare_high(list1, list2), "high")
+
+
+def compare_double(list1, list2):
+    if max(list1) > max(list2):
+        return list1
+    elif max(list1) < max(list2):
+        return list2
+    else:
+        if min(list1) > min(list2):
+            return list1
+        elif min(list1) < min(list2):
+            return list2
+        else:
+            return True
+
+
+def compare_simple(list1, list2):
+    if max(list1) > max(list2):
+        return list1
+    elif max(list1) < max(list2):
+        return list2
+    else:
+        return True
+
+
+def who_wins(f_cards, d_cards, p_cards):
+    xd = compare_pairs(f_cards, d_cards)
+    xp = compare_pairs(f_cards, p_cards)
+    if type(xd) == list and type(xp) == list:
+
+        if len(xd) > len(xp):
+            print ("Dealer wins with...")
+            results(f_cards, d_cards)
+        elif len(xd) < len(xp):
+            print ("You win with...")
+            results(f_cards, p_cards)
+        else:
+            if len(xd) == 1 and compare_simple(xd, xp) == xp:
+                print ("You win with...")
+                results(f_cards, p_cards)
+            elif len(xd) == 1 and compare_simple(xd, xp) == xd:
+                print("Dealer wins with...")
+                results(f_cards, d_cards)
+            elif len(xd) == 2 and compare_double(xd, xp) == xd:
+                print("Dealer wins with...")
+                results(f_cards, d_cards)
+            elif len(xd) == 2 and compare_double(xd, xp) == xp:
+                print("You win with...")
+                results(f_cards, p_cards)
+            else:
+                print ("You both have:")
+                results(f_cards, p_cards)
+                print ("It's a draw")
+
+    elif type(xd) != type(xp):
+        if type(xd) == list:
+            print("Dealer wins with...")
+            results(f_cards, d_cards)
+        else:
+            print("You win with...")
+            results(f_cards, p_cards)
+
+    else:
+        if compare_high(p_cards, f_cards) > compare_high(d_cards, f_cards):
+            print("You win with...")
+            results(f_cards, p_cards)
+        elif compare_high(p_cards, f_cards) < compare_high(d_cards, f_cards):
+            print("Dealer wins with...")
+            results(f_cards, d_cards)
+        else:
+            print("You both have:")
+            results(f_cards, p_cards)
+            print("It's a draw")
+
+
+def heads_up():
+    f_cards = flop()
+    (p_cards, d_cards) = cards()
+    print ("Here comes the flop")
+    print (f_cards)
+    print("You have:", p_cards)
+    print ("Your turn to talk. What do you do?")
+    action = input ("> ")
+
+    while True:
+
+        if action == "check":
+            print ("The dealer has checked as well")
+            print("You have:")
+            results(f_cards, p_cards)
+            print("Dealer has:")
+            results(f_cards, d_cards)
+            who_wins(f_cards, d_cards, p_cards)
+            exit(0)
+
+        elif action == "call":
+            print("You have:")
+            results(f_cards, p_cards)
+            print("Dealer has:")
+            results(f_cards, d_cards)
+            who_wins(f_cards, d_cards, p_cards)
+            exit(0)
+
+        else:
+            print("Instruction is not clear. You checked by default.")
+            action = "check"
+
+
+heads_up()
